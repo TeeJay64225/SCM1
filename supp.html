@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="side.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /*.login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }*/
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+             padding: 2rem;
+          
+            display: none;
+        }
+
+        .header {
+            background: var(--primary-color);
+            color: white;
+    
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+         .header {
+                background-color: #2c3e50;
+                padding: 0.5rem 2rem;
+                color: white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+    
+            .header-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+    
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+            }
+    
+            .header h1 {
+                margin: 0;
+                font-size: 1.5rem;
+                white-space: nowrap;
+            }
+    
+            .nav-menu {
+                display: flex;
+                gap: 1.5rem;
+                align-items: center;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+    
+            .nav-menu a {
+                color: #fff;
+                text-decoration: none;
+                padding: 0.5rem 0;
+                font-weight: 500;
+                position: relative;
+                transition: color 0.3s ease;
+            }
+    
+            .nav-menu a:hover {
+                color: #3498db;
+            }
+    
+            .nav-menu a::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background-color: #3498db;
+                transition: width 0.3s ease;
+            }
+    
+            .nav-menu a:hover::after {
+                width: 100%;
+            }
+    
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+    
+            .supplier-info {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+    
+            #supplierName {
+                font-weight: 500;
+            }
+    
+            .logout-btn {
+                background-color: transparent;
+                border: 1px solid #fff;
+                color: #fff;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+    
+            .logout-btn:hover {
+                background-color: #fff;
+                color: #2c3e50;
+            }
+    
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-new {
+            background-color: var(--warning-color);
+        }
+
+        .status-accepted {
+            background-color: var(--success-color);
+        }
+
+        .status-completed {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: var(--success-color);
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            background: #ddd;
+        }
+
+        .tab.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+
+            @media (max-width: 768px) {
+                .header-container {
+                    flex-direction: column;
+                    gap: 1rem;
+                    padding: 1rem 0;
+                }
+    
+                .nav-menu {
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+    
+                .header-right {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+    </style>
+</head>
+
+<body>
+    <!-- Login Form 
+    <div id="loginForm" class="login-container">
+        <h2>Supplier Portal Login</h2>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button onclick="login()">Login</button>
+    </div> -->
+    
+
+    <!-- Supplier Dashboard -->
+    <div id="dashboard" class="dashboard-container">
+        
+
+    <div class="header">
+        <style>
+           
+        </style>
+    
+        <div class="header-container">
+            <div class="header-left">
+                <h1>Supplier Dashboard</h1>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="pocurement.html">Dashboard</a></li>
+                        <li><a href="orders.html">Orders</a></li>
+                        <li><a href="inventory.html">Inventory</a></li>
+                        <li><a href="stats.html">Reports</a></li>
+                        <li><a href="#settings">Settings</a></li>
+                    </ul>
+                </nav>
+            </div>
+    
+            <div class="header-right">
+                <div class="supplier-info">
+                    <span id="supplierName">John Doe</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('newOrders')">New Orders</div>
+            <div class="tab" onclick="switchTab('activeOrders')">Active Orders</div>
+            <div class="tab" onclick="switchTab('completedOrders')">Completed Orders</div>
+        </div>
+
+        <div id="newOrders" class="card">
+            <h2>New Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="newOrdersTable"></tbody>
+            </table>
+        </div>
+
+        <div id="activeOrders" class="card" style="display: none;">
+            <h2>Active Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="activeOrdersTable"></tbody>
+            </table>
+        </div>
+
+        <div id="completedOrders" class="card" style="display: none;">
+            <h2>Completed Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Completion Date</th>
+                    </tr>
+                </thead>
+                <tbody id="completedOrdersTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Sample data
+        const suppliers = [
+            {
+                id: 1,
+                email: 'supplier@example.com',
+                password: 'password123',
+                name: 'Tech Supplies Inc'
+            }
+        ];
+
+        const orders = [
+            {
+                id: 1,
+                supplierId: 1,
+                date: '2024-03-18',
+                items: [
+                    { name: 'Laptop', quantity: 5, price: 1000 },
+                    { name: 'Mouse', quantity: 10, price: 20 }
+                ],
+                status: 'new',
+                completionDate: null
+            },
+            {
+                id: 2,
+                supplierId: 1,
+                date: '2024-03-17',
+                items: [
+                    { name: 'Keyboard', quantity: 8, price: 50 }
+                ],
+                status: 'accepted',
+                completionDate: null
+            }
+        ];
+
+        let currentSupplier = null;
+
+        // Login function
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const supplier = suppliers.find(s => s.email === email && s.password === password);
+            if (supplier) {
+                currentSupplier = supplier;
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('supplierName').textContent = supplier.name;
+                loadOrders();
+                showNotification('Login successful');
+            } else {
+                showNotification('Invalid credentials');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            currentSupplier = null;
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Load orders
+        function loadOrders() {
+            const supplierOrders = orders.filter(order => order.supplierId === currentSupplier.id);
+
+            // New orders
+            const newOrders = supplierOrders.filter(order => order.status === 'new');
+            document.getElementById('newOrdersTable').innerHTML = newOrders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}</td>
+                    <td>$${calculateOrderTotal(order)}</td>
+                    <td>
+                        <button onclick="acceptOrder(${order.id})">Accept</button>
+                        <button onclick="rejectOrder(${order.id})" style="background-color: var(--danger-color)">Reject</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Active orders
+            const activeOrders = supplierOrders.filter(order => order.status === 'accepted');
+            document.getElementById('activeOrdersTable').innerHTML = activeOrders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}</td>
+                    <td><span class="status-badge status-accepted">In Progress</span></td>
+                    <td>
+                        <button onclick="completeOrder(${order.id})">Mark Complete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Completed orders
+            const completedOrders = supplierOrders.filter(order => order.status === 'completed');
+            document.getElementById('completedOrdersTable').innerHTML = completedOrders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}</td>
+                    <td>${order.completionDate}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Calculate order total
+        function calculateOrderTotal(order) {
+            return order.items.reduce((total, item) => total + (item.quantity * item.price), 0);
+        }
+
+        // Order actions
+        function acceptOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'accepted';
+                loadOrders();
+                showNotification('Order accepted');
+            }
+        }
+
+        function rejectOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'rejected';
+                loadOrders();
+                showNotification('Order rejected');
+            }
+        }
+
+        function completeOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'completed';
+                order.completionDate = new Date().toLocaleDateString();
+                loadOrders();
+                showNotification('Order marked as complete');
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+
+            ['newOrders', 'activeOrders', 'completedOrders'].forEach(id => {
+                document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+            });
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

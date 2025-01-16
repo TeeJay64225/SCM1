@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Analytics Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="side.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0px;
+            background-color: var(--background-color);
+        }
+
+        .container {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            padding: 2rem;
+
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--dark);
+            color: white;
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            width: 250px;
+            left: 0;
+            top: 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+
+
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+            padding: 10px;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #2d2d2d;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1000;
+
+        }
+
+        .sidebar-toggle i {
+            font-size: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 10px 0;
+        }
+
+        .chart-container {
+            background: var(--card-background);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .supplier-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-background);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .supplier-table th,
+        .supplier-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .supplier-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .supplier-table tbody tr:hover {
+            background-color: #f5f6fa;
+        }
+
+        .performance-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .performance-good {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .performance-average {
+            background-color: var(--warning-color);
+            color: black;
+        }
+
+        .performance-poor {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .trend-indicator {
+            margin-left: 5px;
+        }
+
+        .trend-up {
+            color: var(--success-color);
+        }
+
+        .trend-down {
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Toggle Button -->
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                Procurement System
+            </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="pocurement.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    Purchase Orders
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="user.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Clients
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="warehouse.html" class="nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    Warehouses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="fas fa-boxes"></i>
+                    Inventory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="invoice.html" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    Invoices
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="stats.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logistics.html" class="nav-link">
+                    <i class="fas fa-truck"></i>
+                    Logistics
+                </a>
+            </li>
+        </ul>
+
+        </aside>
+
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Supplier Analytics Dashboard</h1>
+                <div>
+                    <label for="timeRange">Time Range:</label>
+                    <select id="timeRange" onchange="updateCharts()">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last 365 days</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Suppliers</h3>
+                    <div class="stat-value">24</div>
+                    <div class="trend-indicator">↑ 2 this month</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Orders</h3>
+                    <div class="stat-value">156</div>
+                    <div class="trend-indicator">↑ 12% vs last month</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Delivery Time</h3>
+                    <div class="stat-value">4.2 days</div>
+                    <div class="trend-indicator trend-up">↓ 0.5 days improvement</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Order Fulfillment Rate</h3>
+                    <div class="stat-value">94.8%</div>
+                    <div class="trend-indicator trend-up">↑ 2.3%</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <h2>Supplier Performance Trends</h2>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Order Distribution by Supplier</h2>
+                    <canvas id="orderDistributionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Delivery Time Analysis</h2>
+                    <canvas id="deliveryTimeChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Quality Metrics</h2>
+                    <canvas id="qualityMetricsChart"></canvas>
+                </div>
+            </div>
+
+            <table class="supplier-table">
+                <thead>
+                    <tr>
+                        <th>Supplier Name</th>
+                        <th>Active Orders</th>
+                        <th>On-Time Delivery</th>
+                        <th>Quality Score</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody id="supplierTableBody">
+                    <!-- Table content will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            document.getElementById('sidebarToggle').addEventListener('click', function () {
+                document.querySelector('.sidebar').classList.toggle('active');
+            });
+            // Sample data
+            const supplierData = [
+                { name: 'Tech Supplies Inc', activeOrders: 45, onTimeDelivery: 96, qualityScore: 98 },
+                { name: 'Office Solutions', activeOrders: 32, onTimeDelivery: 89, qualityScore: 95 },
+                { name: 'Global Electronics', activeOrders: 28, onTimeDelivery: 92, qualityScore: 94 },
+                { name: 'Quality Parts Ltd', activeOrders: 51, onTimeDelivery: 88, qualityScore: 92 }
+            ];
+
+            // Initialize charts
+            function initializeCharts() {
+                // Performance Trends Chart
+                const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+                new Chart(performanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'On-Time Delivery',
+                            data: [92, 93, 95, 94, 96, 98],
+                            borderColor: '#2ecc71',
+                            tension: 0.4
+                        }, {
+                            label: 'Quality Score',
+                            data: [90, 91, 93, 94, 95, 95],
+                            borderColor: '#3498db',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+
+                // Order Distribution Chart
+                const distributionCtx = document.getElementById('orderDistributionChart').getContext('2d');
+                new Chart(distributionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: supplierData.map(s => s.name),
+                        datasets: [{
+                            data: supplierData.map(s => s.activeOrders),
+                            backgroundColor: ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f']
+                        }]
+                    }
+                });
+
+                // Delivery Time Chart
+                const deliveryCtx = document.getElementById('deliveryTimeChart').getContext('2d');
+                new Chart(deliveryCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: supplierData.map(s => s.name),
+                        datasets: [{
+                            label: 'Average Delivery Time (Days)',
+                            data: [3.8, 4.2, 3.9, 4.5],
+                            backgroundColor: '#3498db'
+                        }]
+                    }
+                });
+
+                // Quality Metrics Chart
+                const qualityCtx = document.getElementById('qualityMetricsChart').getContext('2d');
+                new Chart(qualityCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Quality', 'Timeliness', 'Communication', 'Price', 'Reliability'],
+                        datasets: [{
+                            label: 'Average Score',
+                            data: [90, 85, 88, 92, 87],
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            borderColor: '#3498db'
+                        }]
+                    }
+                });
+            }
+
+            // Populate supplier table
+            function populateSupplierTable() {
+                const tbody = document.getElementById('supplierTableBody');
+                tbody.innerHTML = supplierData.map(supplier => {
+                    const performanceScore = (supplier.onTimeDelivery + supplier.qualityScore) / 2;
+                    let performanceClass = 'performance-average';
+                    if (performanceScore >= 95) performanceClass = 'performance-good';
+                    if (performanceScore < 85) performanceClass = 'performance-poor';
+
+                    return `
+                    <tr>
+                        <td>${supplier.name}</td>
+                        <td>${supplier.activeOrders}</td>
+                        <td>${supplier.onTimeDelivery}%</td>
+                        <td>${supplier.qualityScore}/100</td>
+                        <td><span class="performance-indicator ${performanceClass}">
+                            ${performanceScore.toFixed(1)}%
+                        </span></td>
+                    </tr>
+                `;
+                }).join('');
+            }
+
+            // Update charts based on time range
+            function updateCharts() {
+                // This would typically fetch new data based on the selected time range
+                // For demo purposes, we'll just log the selected value
+                const timeRange = document.getElementById('timeRange').value;
+                console.log(`Updating charts for last ${timeRange} days`);
+            }
+
+            // Initialize the dashboard
+            document.addEventListener('DOMContentLoaded', () => {
+                initializeCharts();
+                populateSupplierTable();
+            });
+        </script>
+</body>
+
+</html>

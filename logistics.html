@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics Management Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0ea5e9;
+            --secondary-color: #0284c7;
+            --background-color: #f1f5f9;
+            --sidebar-color: #0f172a;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-color: #334155;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-color);
+            color: white;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 1rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: var(--text-color);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-transit {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-delivered {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-delayed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .delivery-map {
+            height: 300px;
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        /* Progress Bar Styles */
+        .progress-track {
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+            margin: 1rem 0;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #e2e8f0;
+            top: 50%;
+            left: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .progress-marker {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.completed .progress-marker {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+
+        .progress-step.completed::after {
+            background-color: var(--success-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 999;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 4rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .table td,
+            .table th {
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Logistics Hub</h2>
+            </div>
+            <nav>
+                <a href="pocurement.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                                <a href="orders.html" class="nav-link">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Purchase Orders
+                                </a>
+        <a href="user.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            Clients
+        </a>
+                <a href="warehouse.html" class="nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    Warehouses
+                </a>
+            <a href="inventory.html" class="nav-link">
+                <i class="fas fa-boxes"></i>
+                Inventory
+            </a>
+            <a href="invoice.html" class="nav-link">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Invoices
+            </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+                        <a href="logistics.html" class="nav-link">
+                            <i class="fas fa-truck"></i>
+                            Logistics
+                        </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1 style="margin-bottom: 2rem;">Logistics Overview</h1>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Active Shipments</h3>
+                    <div class="stat-value">248</div>
+                </div>
+                <div class="stat-card">
+                    <h3>On-Time Delivery Rate</h3>
+                    <div class="stat-value">94.2%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Transit Time</h3>
+                    <div class="stat-value">2.4 days</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Delayed Shipments</h3>
+                    <div class="stat-value">12</div>
+                </div>
+            </div>
+
+            <!-- Shipment Tracking -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Shipments</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tracking ID</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>ETA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SHP-2024-001</td>
+                            <td>New York, NY</td>
+                            <td>Los Angeles, CA</td>
+                            <td><span class="status-badge status-transit">In Transit</span></td>
+                            <td>Jan 18, 2024</td>
+                        </tr>
+                        <tr>
+                            <td>SHP-2024-002</td>
+                            <td>Chicago, IL</td>
+                            <td>Miami, FL</td>
+                            <td><span class="status-badge status-delivered">Delivered</span></td>
+                            <td>Jan 16, 2024</td>
+                        </tr>
+                        <tr>
+                            <td>SHP-2024-003</td>
+                            <td>Seattle, WA</td>
+                            <td>Boston, MA</td>
+                            <td><span class="status-badge status-delayed">Delayed</span></td>
+                            <td>Jan 19, 2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Delivery Progress -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Shipment SHP-2024-001 Progress</h2>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-step completed">
+                        <div class="progress-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>Picked</div>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="progress-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>Packed</div>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="progress-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>Shipped</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="progress-marker">4</div>
+                        <div>Delivered</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="stats-grid">
+                <div class="card">
+                    <h3>Delivery Performance</h3>
+                    <div class="delivery-map">
+                        [Map Visualization Placeholder]
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>Total Deliveries:</strong> 1,248
+                        </div>
+                        <div>
+                            <strong>Success Rate:</strong> 98.5%
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Route Efficiency</h3>
+                    <div class="delivery-map">
+                        [Route Analytics Placeholder]
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>Active Routes:</strong> 45
+                        </div>
+                        <div>
+                            <strong>Avg Distance:</strong> 324 mi
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
